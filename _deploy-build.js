@@ -348,6 +348,22 @@ const vercel = {
 };
 writeOut('vercel.json', JSON.stringify(vercel, null, 2) + '\n');
 
+// Isti config mora da stoji i u korenu repoa: Vercel cita vercel.json iskljucivo
+// odatle, pre nego sto build uopste krene — onaj u _deploy/ je obican fajl koji
+// se servira, a ne podesavanje. Zato koren nosi jos i buildCommand i
+// outputDirectory, pa Vercel sam napravi _deploy/ (koji je u .gitignore).
+// Pise se odavde da lista zaglavlja ne bi imala dva izvora istine.
+fs.writeFileSync(
+  path.join(ROOT, 'vercel.json'),
+  JSON.stringify({
+    ...vercel,
+    framework: null,
+    buildCommand: 'node _deploy-build.js',
+    outputDirectory: '_deploy',
+    installCommand: 'echo "bez zavisnosti"',
+  }, null, 2) + '\n',
+);
+
 // ---------------------------------------------------------------- gotovo
 
 const size = dirSize(OUT);
