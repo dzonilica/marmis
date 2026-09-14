@@ -1,0 +1,147 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MARMIS — zamena za Inter (citat i uvodni tekst)</title>
+<!-- Alat za odluku, nije deo sajta. Fontovi se ovde citaju sa Google CDN-a samo
+     zbog uporedjivanja; u sajt ide iskljucivo lokalni woff2 iz fonts/, kao i do sada.
+
+     Zapis odluke od 2026-09-13: posle poredjenja korisnik je ZADRZAO Inter
+     (kartica 0). Nista u sajtu nije menjano. Stranica stoji kao zapis da su
+     ostalih devet kandidata vidjeni i odbijeni. -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Instrument+Sans:wght@400;500&family=Jost:wght@300;400;500&family=Tenor+Sans&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Instrument+Serif:ital@0;1&family=Bodoni+Moda:ital,wght@0,400;0,500;1,400&family=Marcellus&display=swap">
+<style>
+  :root{
+    --ink:#181615; --muted:#8a8178; --line:#ddd7cd; --paper:#f3f0ed; --now:#e6d8cc;
+    --ui:"Instrument Sans","Inter",system-ui,sans-serif;
+    --garamond:"EB Garamond",Georgia,serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:0 0 120px;background:var(--paper);color:var(--ink);font-family:var(--ui);
+       -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+  header{padding:48px 0 6px}
+  h1{font:400 clamp(30px,4.4vw,52px)/1.05 var(--garamond);margin:0 0 14px;letter-spacing:-.01em}
+  .lead{font-size:15px;line-height:1.6;color:#5d564f;max-width:64ch;margin:0}
+  .lead b{font-weight:500;color:var(--ink)}
+  .gde{font-size:13.5px;line-height:1.7;color:#5d564f;max-width:64ch;margin:14px 0 0;padding-left:18px}
+
+  h2{font:500 11px/1 var(--ui);letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+     margin:64px 0 0;padding-bottom:14px;border-bottom:1px solid var(--line)}
+
+  .card{padding:30px 0 34px;border-bottom:1px solid var(--line)}
+  .card.now{background:var(--now);margin:0 -24px;padding:30px 24px 34px}
+  .head{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:baseline;margin:0 0 24px}
+  .num{font:500 11px/1 var(--ui);letter-spacing:.1em;color:var(--muted);
+       border:1px solid var(--line);border-radius:99px;padding:5px 9px}
+  .name{font:500 15px/1 var(--ui);letter-spacing:.02em}
+  .spec{font-size:12px;color:var(--muted);letter-spacing:.02em}
+  .tag{font:500 10px/1 var(--ui);letter-spacing:.12em;text-transform:uppercase;
+       border:1px solid var(--ink);border-radius:99px;padding:5px 9px}
+  .note{font-size:13px;line-height:1.55;color:#5d564f;max-width:62ch;margin:22px 0 0}
+
+  /* Uzorci drze iste vrednosti kao sajt; menja se samo porodica (i velicina, da
+     serifi opticki odgovaraju istom redu velicine kao Inter na 30px). */
+  .citat{font-family:var(--ff);font-weight:var(--fw);font-size:var(--fs);line-height:1.06;
+         letter-spacing:var(--ls);font-style:var(--fi,normal);
+         text-align:center;text-wrap:balance;max-width:22ch;margin:0 auto;white-space:pre-line}
+  .potpis{font:400 16px/1.1 var(--garamond);letter-spacing:.04em;text-align:center;margin:22px 0 0}
+  .potpis em{font-style:italic}
+  .uvod{font-family:var(--ff);font-weight:var(--fw);font-size:calc(var(--fs) * .82);
+        line-height:1.14;letter-spacing:var(--ls);text-align:center;text-wrap:balance;
+        max-width:30ch;margin:46px auto 0;color:#2a2622}
+  .male{display:flex;gap:26px;justify-content:center;margin:36px 0 0;flex-wrap:wrap}
+  .male span{font-family:var(--ff);font-weight:var(--fwm,500);font-size:14px;letter-spacing:.06em;
+             text-transform:uppercase;color:#5d564f}
+  @media (max-width:640px){
+    .wrap{padding:0 16px}
+    .card.now{margin:0 -16px;padding-left:16px;padding-right:16px}
+    .citat{max-width:none;font-size:calc(var(--fs) * .82)}
+    .uvod{max-width:none}
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Zamena za Inter</h1>
+    <p class="lead">Citat i uvodni tekst <b>nisu</b> u Garamondu — oni idu u <b>Interu</b> (grotesk, debljina
+      500, 30px), preko tokena <b>--font-family-content</b>. Inter je tehnički dobar, ali je najkorišćeniji
+      sans na internetu i zato zvuči standardno. Dole je isti citat u istom rangu veličine, samo u drugim
+      porodicama; prva kartica je današnje stanje. Svi kandidati su OFL, dakle ostaju lokalni woff2 fajlovi,
+      bez tuđeg CDN-a u samom sajtu.</p>
+    <ul class="gde">
+      <li>citat „Konfekcija je napravljena za prosek…"</li>
+      <li>uvodni naslov „MARMIS je šivačka radnja u kojoj se odeća šije po meri…"</li>
+      <li>linkovi i sitan tekst u futeru (POČETNA, KONTAKT, potpis)</li>
+      <li>veliki naslovi, telo teksta i dugmad su već EB Garamond i ne diraju se</li>
+    </ul>
+  </header>
+  <div id="izlaz"></div>
+</div>
+
+<script>
+  const CITAT = '„Konfekcija je napravljena za prosek.\n\nMi šijemo za jednog čoveka — za onoga ko će to nositi."';
+  const UVOD  = 'MARMIS je šivačka radnja u kojoj se odeća šije po meri, prepravlja i popravlja — tačno onako kako vam odgovara.';
+
+  const GRUPE = [
+    { naslov: 'Sada', fontovi: [
+      { br:0, ime:'Inter', ff:"'Inter',sans-serif", fw:500, fs:30, ls:'-.02em', tag:'u sajtu', sada:true,
+        nota:'Referenca — ovo je ono što danas vidiš na strani.' },
+    ]},
+    { naslov: 'Ako citat ostaje bezserifan — samo finiji grotesk', fontovi: [
+      { br:1, ime:'Instrument Sans', ff:"'Instrument Sans',sans-serif", fw:500, fs:30, ls:'-.02em', tag:'najbliže originalu',
+        nota:'Uži i mirniji grotesk, zatvorenijih oblika. Najbliže Beausite Classicu koji je original nosio pre zamene (bio je probna licenca). Ritam strane ostaje isti, samo prestaje da liči na svaki drugi sajt.' },
+      { br:2, ime:'Jost', ff:"'Jost',sans-serif", fw:400, fs:31, ls:'0em', fwm:500,
+        nota:'Geometrijski, u duhu Future — slovo modnih kataloga i etiketa. Pravi krugovi, visoko O i A. Zvuči skuplje od Intera, a ostaje bezserifno.' },
+      { br:3, ime:'Tenor Sans', ff:"'Tenor Sans',sans-serif", fw:400, fs:31, ls:'.01em', fwm:400,
+        nota:'Bezserifan, ali sa klasičnim rimskim proporcijama — ton butika i parfumerije. Ima samo jedan rez, pa se sitan tekst u futeru rešava razređivanjem, ne debljinom.' },
+    ]},
+    { naslov: 'Ako citat postaje serifan — jedan glas na celom sajtu', fontovi: [
+      { br:4, ime:'EB Garamond', ff:"'EB Garamond',serif", fw:400, fs:38, ls:'-.005em', tag:'bez novih fajlova',
+        nota:'Font koji sajt već nosi, samo pušten i u citat. Ništa novo se ne skida, strana se ne usporava, a citat prestaje da izgleda kao interfejs i počinje da izgleda kao rečenica iz knjige.' },
+      { br:5, ime:'EB Garamond — kurziv', ff:"'EB Garamond',serif", fw:400, fs:38, ls:'-.005em', fi:'italic',
+        nota:'Isti font, kurzivni rez — i on je već u sajtu. Citat dobija ton izgovorene rečenice. Za uvodni naslov bi kurziv bio previše, njega bih ostavio uspravnog.' },
+      { br:6, ime:'Cormorant Garamond', ff:"'Cormorant Garamond',serif", fw:400, fs:44, ls:'-.01em',
+        nota:'Najveći kontrast debelo–tanko i najotmeniji od svih. Traži veliku veličinu i vazduh; na telefonu tanki potezi oslabe, pa tamo treba debljina 500.' },
+      { br:7, ime:'Instrument Serif', ff:"'Instrument Serif',serif", fw:400, fs:42, ls:'-.01em',
+        nota:'Uzak display serif, editorijalni ton. Odličan za jednu veliku rečenicu, neupotrebljiv za sitan tekst — futer bi tada ostao u nekom sansu.' },
+      { br:8, ime:'Bodoni Moda', ff:"'Bodoni Moda',serif", fw:400, fs:36, ls:'-.005em',
+        nota:'Modni magazin doslovno — slovo sa naslovnica. Jak karakter; uz Garamond u naslovima može da zvuči kao dva brenda, pa bi onda i naslovi trebalo da pređu na njega.' },
+      { br:9, ime:'Marcellus', ff:"'Marcellus',serif", fw:400, fs:38, ls:'0em', fwm:400,
+        nota:'Kameni, rimski duh — mirno i dostojanstveno. Nema kurziv ni druge debljine, pa je i on font za jednu rečenicu, ne za ceo sajt.' },
+    ]},
+  ];
+
+  const izlaz = document.getElementById('izlaz');
+  for (const grupa of GRUPE) {
+    const h2 = document.createElement('h2');
+    h2.textContent = grupa.naslov;
+    izlaz.append(h2);
+
+    for (const f of grupa.fontovi) {
+      const card = document.createElement('div');
+      card.className = 'card' + (f.sada ? ' now' : '');
+      card.style.cssText = `--ff:${f.ff};--fw:${f.fw};--fs:${f.fs}px;--ls:${f.ls};` +
+        (f.fi ? `--fi:${f.fi};` : '') + (f.fwm ? `--fwm:${f.fwm};` : '');
+
+      const spec = [f.fw === 500 ? 'Medium 500' : 'Regular 400', f.fs + 'px', f.ls]
+        .concat(f.fi ? ['kurziv'] : []).join(' · ');
+
+      card.innerHTML =
+        `<div class="head"><span class="num">${f.br}</span><span class="name"></span>` +
+        `<span class="spec">${spec}</span>` + (f.tag ? `<span class="tag">${f.tag}</span>` : '') + `</div>` +
+        `<p class="citat"></p>` +
+        `<p class="potpis">MARMIS, <em>šivačka</em> RADNJA</p>` +
+        `<p class="uvod"></p>` +
+        `<div class="male"><span>Početna</span><span>Kontakt</span></div>` +
+        `<p class="note"></p>`;
+
+      card.querySelector('.name').textContent = f.ime;
+      card.querySelector('.citat').textContent = CITAT;
+      card.querySelector('.uvod').textContent = UVOD;
+      card.querySelector('.note').textContent = f.nota;
+      izlaz.append(card);
+    }
+  }
+</script>

@@ -1,0 +1,54 @@
+/* MARMIS galerija "Otvaranje" na pocetnoj.
+   Markup je u index.html (SSR) i u RSC payload-u (red 35).
+   Pokret daje marmis/galerije.js; bez JS-a i uz prefers-reduced-motion
+   ostaje staticni mozaik. Boje, fontovi i easing su promenljive koje
+   sajt vec ima (vidi :root u _next/static/chunks). */
+
+/* galerija je poslednja sekcija pred futerom (Reassurance je uklonjen), otud razmak dole */
+.mg{position:relative;color:var(--color-grey-900);padding-bottom:clamp(56px,7vw,120px)}
+
+/* slika + potpis (potpis izlazi odozdo na hover, kao u originalnoj mrezi) */
+.mg__fig{position:relative;margin:0}
+.mg__media{position:relative;width:100%;height:100%;overflow:hidden;background:var(--color-beige-300)}
+.mg__media img{display:block;width:100%;height:100%;object-fit:cover;object-position:var(--op,50% 50%);transition:transform .6s var(--ease-out-quart)}
+.mg__cap{position:absolute;top:100%;left:0;margin:0;padding-top:12px;overflow:hidden;white-space:nowrap;font:var(--font-button);letter-spacing:.06em;text-transform:uppercase;pointer-events:none}
+.mg__cap span{display:inline-block;transform:translateY(110%);transition:transform .45s var(--ease-out-quart)}
+@media (hover:hover){
+  .mg__fig:hover .mg__media img{transform:scale(1.12)}
+  .mg__fig:hover .mg__cap span{transform:none}
+}
+.mg__btn{min-width:270px}
+
+/* jedna slika preko celog ekrana se na skrol povlaci u mozaik */
+.mg-o{position:relative;height:300vh;height:300svh}
+.mg-o__stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.mg-o__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) minmax(0,1.3fr) repeat(2,minmax(0,1fr));grid-template-rows:minmax(0,.9fr) minmax(0,1.35fr) minmax(0,.9fr);grid-template-areas:"a b t c d" "e f x g h" "i . k j .";gap:clamp(34px,4.4svh,52px) clamp(16px,2.4vw,44px);width:min(1500px,calc(100% - 60px));height:min(82svh,66vw);margin-top:8svh}
+.mg-o__cell{display:flex;justify-content:center;align-items:center;min-width:0;min-height:0}
+.mg-o__cell .mg__fig{height:calc(var(--s,1)*100%);aspect-ratio:3/4;transform-origin:50% 50%}
+.mg-o__cell .mg-o__hero{height:100%;aspect-ratio:2/3}
+.mg-o__title{grid-area:t;align-self:end;justify-self:center;margin:0;text-align:center;font:var(--font-display-2);line-height:1.1}
+.mg-o__cta{grid-area:k;align-self:start;justify-self:center}
+/* JS aktivan: glavna slika krece velika iz centra scene, pa se smanjuje u svoju celiju.
+   Znak "ziva galerija" stoji na samoj sekciji (data-mg-live), a NE na <html>:
+   <html> pripada React-u i on pri hidraciji vrati svoj className, pa klasa dodata
+   spolja nestane. Tada bi glavna slika ostala mala (u svojoj celiji), a skripta bi
+   i dalje drzala ostale slike na opacity 0 — na ekranu jedna sicusna slika i nista
+   vise. Atribut React ne dira, a ako ipak precrta cvor, scan() ga postavi ponovo. */
+.mg-o[data-mg-live] .mg-o__hero{position:absolute;left:50%;top:calc(50% + 3svh);z-index:2;height:min(80svh,130vw);translate:-50% -50%}
+.mg-o[data-mg-live] .mg-o__cell .mg-o__hero{height:min(80svh,130vw)}
+
+@media (max-width:767px){
+  .mg-o{height:260vh;height:260svh}
+  .mg-o__grid{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:auto repeat(4,minmax(0,1fr)) auto;grid-template-areas:"t t t" "a x b" "c x d" "e f g" "h i j" "k k k";gap:10px;width:calc(100% - 24px);height:84svh;margin-top:3svh}
+  /* slicice su na telefonu bile sitne: raspon --s (.78-1) se skuplja navise */
+  .mg-o__cell .mg__fig{height:calc((.82 + var(--s,1)*.18)*100%)}
+  .mg-o__cell{justify-content:center!important;align-items:center!important}
+  .mg-o__title{font-size:1.625rem;padding-bottom:4px}
+  .mg__cap{display:none}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .mg-o{height:auto}
+  .mg-o__stage{position:relative;height:auto;padding:24px 0 96px}
+  .mg-o__grid{height:min(90svh,64vw);margin-top:0}
+}

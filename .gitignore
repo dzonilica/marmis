@@ -1,0 +1,26 @@
+# Zavisnosti — vraćaju se sa `npm install` u _fontovi/
+_fontovi/node_modules/
+
+# Build izlaz — pravi ga `node _deploy-build.js`, nema razloga da stoji u repou
+_deploy/
+
+# Rezervne kopije iz rada na sajtu
+_backup-*/
+
+# 3D izvornici za haljinu na lutki (~91 MB .blend/.obj/.glb).
+# Sajtu treba samo izvezeni model u webgl/haljina-lutka/, koji jeste u repou.
+haljina_sa_lutkom/
+
+# Radne slike iz generatora, nisu deo sajta
+ChatGPT Image *.png
+
+# Lični dokument, nema veze sa sajtom
+1676299135_zahtev_za_clanstvo_oz_bulevar.pdf
+
+# Podešavanja editora
+.vscode/
+
+# Smeće operativnog sistema
+Thumbs.db
+desktop.ini
+.DS_Store
