@@ -52,3 +52,17 @@
   .mg-o__stage{position:relative;height:auto;padding:24px 0 96px}
   .mg-o__grid{height:min(90svh,64vw);margin-top:0}
 }
+
+/* Sekcija sa tri koraka ("stop scroll") — kadriranje poslednje slike na telefonu.
+   Slika je uspravna (1521x2000), a kadr je jos uzi, pa `object-fit: cover` sa
+   podrazumevanim centrom secka levu stranu: devojka ostaje uz levu ivicu, a
+   desnu polovinu zauzme drvo. Pomeramo tacku kadriranja ulevo (10% umesto 50%)
+   — vidi se malo manje drveta, a haljina sedne na sredinu ekrana.
+   U kontejneru `masks` deca idu: beacon, kadr, beacon, kadr, beacon, kadr,
+   `sticky` (natpisi). Poslednji kadr je zato pretposlednje dete, a ne poslednje
+   — `:last-child` bi pogodio `sticky` i pravilo ne bi radilo. Diramo samo
+   mobilnu varijantu slike; iznad 930px vazi originalni CSS. */
+@media screen and (max-width:929px){
+  .FullSizeScrollerStepper-module-scss-module__K-7siW__masks > :nth-last-child(2)
+  .Media-module-scss-module__lFYlva__mobile{object-position:10% center}
+}
