@@ -3,7 +3,7 @@
 //
 //   node _deploy-build.js                       -> _deploy/
 //   node _deploy-build.js --domain https://x.rs -> drugi domen
-//   node _deploy-build.js --out ../izlaz        -> drugi izlazni folder
+//   node _deploy-build.js --out _deploy-proba -> drugi izlazni folder u projektu
 //
 // Sta radi:
 //   1. kopira samo ono sto ide na server (bez backupa, izvornih slika, 3D izvora)
@@ -27,8 +27,29 @@ function arg(name, fallback) {
   return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : fallback;
 }
 
-const DOMAIN = arg('domain', 'https://marmis.rs').replace(/\/+$/, '');
+const requestedDomain = arg('domain', 'https://marmis.rs');
+const domainUrl = new URL(requestedDomain);
+if (!['http:', 'https:'].includes(domainUrl.protocol) || domainUrl.username ||
+    domainUrl.password || domainUrl.pathname !== '/' || domainUrl.search || domainUrl.hash) {
+  throw new Error('--domain mora biti HTTP(S) domen bez putanje, parametara ili korisnickih podataka');
+}
+const DOMAIN = domainUrl.origin;
 const OUT = path.resolve(ROOT, arg('out', '_deploy'));
+
+// Rekurzivno brisanje je dozvoljeno samo za izdvojene build foldere neposredno
+// u projektu. Time --out ne moze obrisati projekat, roditelja ili izvorni folder.
+const outputName = path.relative(ROOT, OUT);
+if (!/^_deploy(?:-[a-z0-9_-]+)?$/i.test(outputName)) {
+  throw new Error('--out mora biti _deploy ili _deploy-<ime> neposredno u projektu: ' + OUT);
+}
+const realRoot = fs.realpathSync(ROOT);
+if (fs.existsSync(OUT)) {
+  const outputStat = fs.lstatSync(OUT);
+  if (!outputStat.isDirectory() || outputStat.isSymbolicLink() ||
+      path.dirname(fs.realpathSync(OUT)) !== realRoot) {
+    throw new Error('Izlaz nije obican build folder unutar projekta: ' + OUT);
+  }
+}
 
 // ---------------------------------------------------------------- pomocno
 
@@ -112,6 +133,21 @@ for (const f of [
 
 for (const page of ['index.html', 'kontakt/index.html']) {
   let s = readOut(page);
+
+  // Kanonski URL, OG i JSON-LD moraju koristiti isti domen kao sitemap.
+  // Obicni tekst URL-a postoji i u SSR-u i u svim nivoima RSC JSON stringova.
+  s = s.replace(/https:\/\/marmis\.rs(?=[/\\#"'\s?]|$)/g, DOMAIN);
+
+  // Slike i podaci su lokalni; nema razloga da se otvara veza ka tudjem CMS-u.
+  // :HC / :HD su React Flight preconnect / dns-prefetch zapisi.
+  s = patch(s, '<link rel="preconnect" href="https://xei5vqg0.api.sanity.io"/>',
+    '', 1, page + ': Sanity preconnect SSR');
+  s = patch(s, '<link href="https://xei5vqg0.api.sanity.io" rel="dns-prefetch"/>',
+    '', 1, page + ': Sanity dns-prefetch SSR');
+  s = patch(s, ':HC\\"https://xei5vqg0.api.sanity.io\\"\\n',
+    '', 1, page + ': Sanity preconnect RSC');
+  s = patch(s, ':HD\\"https://xei5vqg0.api.sanity.io\\"\\n',
+    '', 1, page + ': Sanity dns-prefetch RSC');
 
   // Potpis originalnog studija u konzoli. Stoji na dva mesta — u SSR <script> i u
   // RSC payload-u — i mora da nestane sa oba, inace ga React vrati posle hidracije.
@@ -275,19 +311,17 @@ console.log('  slike: ' + copied + ' kopija u images/xei5vqg0/production/ (' + m
 // U kopiji je site.webmanifest folder sa index.html — na Vercelu mora da bude fajl.
 writeOut('site.webmanifest', fs.readFileSync(path.join(ROOT, 'site.webmanifest', 'index.html'), 'utf8'));
 
-// Sitemap je imao relativne ./index.html lokacije; standard trazi pune URL-ove.
-const today = new Date().toISOString().slice(0, 10);
+// Datum builda nije datum izmene sadrzaja. Bez pouzdanog datuma izostavljamo
+// opcioni lastmod, umesto da svaki deploy prijavljuje novu izmenu Google-u.
 writeOut('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>${DOMAIN}/</loc>
-    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>${DOMAIN}/kontakt</loc>
-    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
