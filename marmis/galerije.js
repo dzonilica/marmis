@@ -58,6 +58,10 @@
 
     return {
       el: el,
+      // Merenje cita getBoundingClientRect posle upisa u style, sto tera browser
+      // da odmah preracuna raspored. Zato se ovde samo obelezi da vrednosti vise
+      // ne vaze; frame() izmeri kad galerija zaista dodje blizu ekrana.
+      invalidate: function () { m = null; last = null; },
       measure: measure,
       frame: function () {
         if (!m) measure();
@@ -129,7 +133,7 @@
   }
 
   function remeasure() {
-    list.forEach(function (c) { c.measure(); });
+    list.forEach(function (c) { c.invalidate(); });
     kick();
   }
 

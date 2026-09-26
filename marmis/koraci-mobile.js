@@ -107,23 +107,30 @@
     if (!groups.length) { looping = false; return; }
     var mobile = !mq.matches;
     var live = false;
+    /* Prvo se samo cita, pa tek onda pise. Kad bi se naizmenicno citalo i
+       pisalo, svako sledece citanje bi teralo browser da odmah preracuna
+       raspored (forced reflow) — ovako se po kadru racuna jednom. */
+    var reads = [];
     for (var g = 0; g < groups.length; g++) {
       if (!groups[g].near) continue;
       live = true;
       var items = groups[g].items;
       for (var i = 0; i < items.length; i++) {
         var it = items[i];
-        if (!mobile) {
-          if (it.last !== null) { it.el.style.clipPath = ''; it.last = null; }
-          continue;
-        }
+        if (!mobile) { reads.push({ it: it, v: '' }); continue; }
         /* koliko je skrolovano otkako je beacon ispred kadra presao vrh ekrana;
            sve iz zive mere, pa promena visine prozora ne moze da razidje racun */
         var span = it.el.offsetHeight || window.innerHeight || 1;
         var past = -it.beacon.getBoundingClientRect().bottom;
-        var p = clamp(past / span, 0, 1);
-        var v = reveal(p);
-        if (v !== it.last) { it.el.style.clipPath = v; it.last = v; }
+        reads.push({ it: it, v: reveal(clamp(past / span, 0, 1)) });
+      }
+    }
+    for (var r = 0; r < reads.length; r++) {
+      var it2 = reads[r].it, v2 = reads[r].v;
+      if (v2 === '') {
+        if (it2.last !== null) { it2.el.style.clipPath = ''; it2.last = null; }
+      } else if (v2 !== it2.last) {
+        it2.el.style.clipPath = v2; it2.last = v2;
       }
     }
     /* dok je sekcija na ekranu vrtimo se svaki kadr (iOS inercija) */

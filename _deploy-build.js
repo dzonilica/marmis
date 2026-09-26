@@ -19,6 +19,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const ROOT = __dirname;
 
@@ -89,6 +90,19 @@ function copyDir(rel, filter) {
 }
 
 function readOut(rel) { return fs.readFileSync(path.join(OUT, rel), 'utf8'); }
+function readSrc(rel) { return fs.readFileSync(path.join(ROOT, rel), 'utf8'); }
+// Ono sto ide u sam HTML nosi se pri svakom ucitavanju strane, pa objasnjenja
+// ostaju u datoteci u marmis/, a u HTML ide samo kod.
+function readSrcNoComments(rel) {
+  let t = readSrc(rel);
+  if (rel.endsWith('.css')) t = t.replace(/\/\*[\s\S]*?\*\//g, '');
+  else if (t.startsWith('/*')) t = t.slice(t.indexOf('*/') + 2); // samo uvodni blok
+  return t.replace(/\n{3,}/g, '\n\n').trim();
+}
+// kratak otisak sadrzaja: ide u ?v= pa datoteka sme da stoji u kesu godinu dana
+function stamp(rel) {
+  return crypto.createHash('sha1').update(fs.readFileSync(path.join(ROOT, rel))).digest('hex').slice(0, 8);
+}
 function writeOut(rel, text) {
   const dst = path.join(OUT, rel);
   fs.mkdirSync(path.dirname(dst), { recursive: true });
@@ -160,6 +174,22 @@ for (const page of ['index.html', 'kontakt/index.html']) {
   if (page === 'index.html') {
     s = patch(s, /content="\/images\//g, 'content="' + DOMAIN + '/images/', 2, page + ': og:image SSR');
     s = patch(s, /\\"content\\":\\"\/images\//g, '\\"content\\":\\"' + DOMAIN + '/images/', 2, page + ': og:image RSC');
+
+    // Dve datoteke iz marmis/ stoje pre prvog iscrtavanja: stil galerije (browser
+    // ne slika dok ga ne skine) i skripta za hero video (mora da stigne pre nego
+    // sto parser napravi <video>). Zajedno su oko 5 KB, a kao zasebni zahtevi
+    // kostaju dva odlaska na mrezu pre prvog piksela — zato idu u sam HTML.
+    s = patch(s, '<link rel="stylesheet" href="/marmis/galerije.css"/>',
+      '<style>' + readSrcNoComments('marmis/galerije.css') + '</style>', 1, page + ': galerije.css u HTML');
+    s = patch(s, '<script src="/marmis/media-mobile.js"></script>',
+      '<script>' + readSrcNoComments('marmis/media-mobile.js') + '</script>', 1, page + ': media-mobile.js u HTML');
+
+    // Preostale dve se ucitavaju sa defer, pa ne blokiraju; dobijaju otisak u
+    // adresi da bi smele godinu dana u kes, a da nova verzija ipak stigne odmah.
+    for (const js of ['koraci-mobile', 'galerije']) {
+      s = patch(s, '"/marmis/' + js + '.js"', '"/marmis/' + js + '.js?v=' + stamp('marmis/' + js + '.js') + '"',
+        1, page + ': ' + js + '.js otisak');
+    }
   }
 
   writeOut(page, s);
@@ -358,13 +388,17 @@ const vercel = {
       headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
     },
     {
-      // Slike, video i 3D se mogu zameniti pod istim imenom — zato dan, uz SWR.
+      // Slike, video i 3D se mogu zameniti pod istim imenom, pa ne smeju zauvek.
+      // Nedelja dana, uz mesec dana SWR: posetilac koji se vrati dobija sliku iz
+      // kesa odmah, a nova verzija stize u pozadini za sledeci put.
       source: '/(media|images|webgl)/(.*)',
-      headers: [{ key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' }],
+      headers: [{ key: 'Cache-Control', value: 'public, max-age=604800, stale-while-revalidate=2592000' }],
     },
     {
+      // HTML zove ove datoteke sa ?v=<otisak sadrzaja>, pa nova verzija ima novu
+      // adresu — stara sme da stoji u kesu godinu dana.
       source: '/marmis/(.*)',
-      headers: [{ key: 'Cache-Control', value: 'public, max-age=3600, stale-while-revalidate=86400' }],
+      headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
     },
     {
       source: '/(.*)',

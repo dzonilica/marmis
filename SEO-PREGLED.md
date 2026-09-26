@@ -62,3 +62,31 @@ Ovog puta su bili dostupni podaci sa objavljenog sajta.
 ### Sta nije mereno
 
 Nova LCP vrednost. Merenje je moguce tek kad build ode na produkciju, kroz PageSpeed na `https://marmis.rs/`. Poster smanjuje ono sto pregledac mora da skine pre prvog kadra, ali koliko to pomera LCP na terenu pokazuje tek merenje.
+
+## Dopuna, 26. septembar 2026, uvece (PageSpeed izvestaj)
+
+Novi izvestaj sa objavljenog sajta: Performance 62, Accessibility 93, Best Practices 96, SEO 100, Agentic Browsing 1/2. FCP 1,4 s, LCP 3,3 s, TBT 1050 ms, CLS 0, Speed Index 7,9 s.
+
+Provera je radjena lokalno, Lighthouse-om iz istog pregledaca nad `_deploy` buildom, i puppeteer-om za pojedinacne provere.
+
+### Ispravljeno
+
+- **Link u zaglavlju nije imao ime.** Ispod 930px sajt gasi tekst dugmeta sa `display:none` i ostavlja samo ikonicu, pa je `<a href="/kontakt">` za citace ekrana bio prazan. To je obaralo i Accessibility i jedini pali test u Agentic Browsing-u. Tekst se sada ne gasi nego sakriva na standardan nacin (1 px i `clip`), pa dugme izgleda isto, a ime linka je „Zakazi TERMIN". Provereno kroz stablo pristupacnosti pregledaca.
+- **Sivi tekst nije imao kontrast.** `--color-grey-600` je bio `#979696`, sto na bez podlozi `#f3f0ed` daje 2,6:1, a WCAG AA trazi 4,5:1. Sada je `#6b6a69`, odnosno 4,75:1. Lighthouse je prijavio samo potpis u futeru, ali isti sivi tekst nosi i **telefon, adresa, radno vreme i uvodni pasus na /kontakt**, dakle bas ono zbog cega ljudi otvaraju tu stranu. Provereno je da na obe strane, i na telefonu i na desktopu, nijedan takav tekst ne stoji na tamnoj podlozi.
+- **Accessibility je posle ovoga 100 na obe strane** (mereno lokalno), a pali test u Agentic Browsing-u je bio bas taj link.
+- **Kes.** Slike, video i 3D su imali dan, pomocne datoteke iz `marmis/` sat vremena; Lighthouse je zbog toga trazio 368 KiB (najvise hero video, 810 KB). Sada je za `media`, `images` i `webgl` nedelja dana uz mesec dana `stale-while-revalidate`, a `marmis/` ide godinu dana jer HTML te datoteke zove sa `?v=<otisak sadrzaja>`, pa nova verzija dobija novu adresu.
+- **Dva zahteva pre prvog piksela manje.** `marmis/galerije.css` i `marmis/media-mobile.js` moraju da stignu pre iscrtavanja (drugi mora pre nego sto parser napravi `<video>`). Build ih sada upisuje u sam HTML, bez komentara, pa HTML raste sa 150 na 153 KB, a dva odlaska na mrezu nestaju. Preostale dve skripte idu sa `defer` i ne blokiraju.
+- **Prinudni preracun rasporeda u nasim skriptama.** `marmis/galerije.js` je merio sve galerije odmah po ucitavanju, pa jos jednom na `load` i na `fonts.ready`; sada se mere tek kad dodju blizu ekrana. `marmis/koraci-mobile.js` je u istoj petlji naizmenicno pisao i citao raspored; sada prvo cita sve, pa onda pise. Lighthouse je toj dvema skriptama pripisivao oko 366 ms glavne niti.
+
+### Provereno da nije uzrok
+
+- **Uvodna animacija sa procentima nije kriva za LCP.** Traje 2,3 s po tajmeru (`t/2300` u chunk-u), plus otkrivanje. Merenje sa iskljucenom animacijom nije dalo bolji LCP (10,1 s prema 10,4 s lokalno), a Speed Index je bio losiji. Zato nije dirana.
+- **Greska u konzoli (React #418, „hydration mismatch").** Nije od nasih izmena: javlja se i na netaknutoj kopiji u `_backup-original/index.html`, sa originalnim chunkovima. Zbog nje React odbaci ceo SSR HTML i iscrta stranu iznova na klijentu, sto se vidi i u DOM-u (u 606. milisekundi se prazne `<head>` i `<body>`). Zivi verostudio.com danas nema tu gresku, ali je on u medjuvremenu objavljen iz novijeg builda (`dpl_6syx...` prema nasem `dpl_5DJL...`), pa poredjenje ne pokazuje sta je tacno u nasoj kopiji drugacije. Ovo kosta 4 poena u Best Practices i deo TBT-a, a za pravu ispravku treba izvorni kod aplikacije.
+
+### Ostaje neresivo bez izvornog koda
+
+Zastareli JavaScript (22 KiB polyfill-a), neiskorisceni JavaScript (102 KiB) i najveci deo od 1050 ms TBT-a. Glavna nit najvise radi u `0pfr5ypyk26l~.js` (3,7 s, od toga 2,5 s izvrsavanja), a to je React runtime originalne aplikacije. Poster mobilnog hero videa je 540x1080 za prikaz od 463x823, sto Lighthouse racuna kao 6 KiB viska; ostavljen je veci da ne bi bio mutan na ekranima sa dvostrukom gustinom.
+
+### Sta tek treba izmeriti
+
+Performance posle objave. Lokalno merenje na ovoj masini daje losije brojeve od PageSpeed-a (LCP 10 s prema 3,3 s) i sluzi samo za poredjenje pre i posle. Kad build ode na produkciju, ponoviti PageSpeed na `https://marmis.rs/`.
